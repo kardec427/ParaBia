@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Para o Amor da Minha Vida</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #ffdde1, #ee9ca7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      text-align: center;
+      color: #fff;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+    }
+
+    .locks {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+    }
+
+    .lock {
+      border: 2px solid #fff;
+      border-radius: 20px;
+      padding: 20px;
+      cursor: pointer;
+      transition: transform 0.3s, background 0.3s;
+      background-color: rgba(240, 248, 255, 0.363);
+    }
+
+    .lock:hover {
+      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .lock img {
+      width: 60px;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      display: none;
+      z-index: 10;
+    }
+
+    .modal-content {
+      background: white;
+      color: #333;
+      padding: 30px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 450px;
+      width: 100%;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-content input {
+      margin-top: 15px;
+      padding: 10px;
+      font-size: 1rem;
+      width: 80%;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+    .modal-content button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      border: none;
+      background: #ee9ca7;
+      color: white;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .hidden-content {
+      margin-top: 20px;
+      display: none;
+      font-size: 1.1rem;
+      color: #333;
+    }
+
+    .close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 30px;
+      color: #ee9ca7;
+      cursor: pointer;
+    }
+
+    /* --- Estilos para o jogo dentro do cadeado 3 --- */
+    #gameContainer {
+      position: relative;
+      background: #ffe4f0;
+      height: 300px;
+      margin-top: 15px;
+      border-radius: 15px;
+      overflow: hidden;
+      user-select: none;
+      width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #player {
+      position: absolute;
+      bottom: 20px;
+      width: 60px;
+      height: 60px;
+      user-select: none;
+      transition: left 0.1s ease;
+    }
+    #player img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+    .present {
+      position: absolute;
+      font-size: 36px;
+      user-select: none;
+      pointer-events: none;
+    }
+    #mobileControls {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 10px;
+    }
+    #mobileControls button {
+      width: 50px;
+      height: 50px;
+      font-size: 28px;
+      background: #ee9ca7;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+      user-select:none;
+    }
+    #mobileControls button:active {
+      background: #c65b74;
+    }
+
+    #scoreDisplay {
+      font-size: 18px;
+      color: #a43f61;
+      margin-top: 10px;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Para a bia. Te amo ❤️</h1>
+    <div class="locks">
+      <div class="lock" onclick="openModal(1)">
+        <img src="https://cdn-icons-png.flaticon.com/512/2913/2913311.png" alt="Cadeado 1" />
+        <p>Surpresa 1</p>
+      </div>
+      <div class="lock" onclick="openModal(2)">
+        <img src="https://cdn-icons-png.flaticon.com/512/2913/2913311.png" alt="Cadeado 2" />
+        <p>Surpresa 2</p>
+      </div>
+      <div class="lock" onclick="openModal(3)">
+        <img src="https://cdn-icons-png.flaticon.com/512/2913/2913311.png" alt="Cadeado 3" />
+        <p>Surpresa 3</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal">
+    <div class="modal-content" id="modalContent">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2>Digite a senha</h2>
+      <input type="password" id="senhaInput" placeholder="Senha..." />
+      <br/>
+      <button onclick="verificarSenha()">Desbloquear</button>
+      <div class="hidden-content" id="conteudoEscondido"></div>
+    </div>
+  </div>
+
+<script>
+  const senhas = {
+    1: "BYKR25",
+    2: "Cart1501",
+    3: "paraSempre"
+  };
+
+  const conteudos = {
+    1: `
+      <p>Opa, ALERTA VERMELHO!!  💖</p>
+      <p>Escaneie esse QR code para entender tudo 👇</p>
+      <p>Você vai entender tudo</p>
+      <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://youtu.be/dQw4w9WgXcQ&size=200x200" alt="QR Code fofo" />
+    `,
+    2: `
+      <div style="background: #fffaf0; padding: 20px; border-radius: 15px; box-shadow: 0 0 15px rgba(0,0,0,0.2); font-family: 'Cursive', 'Segoe Script', cursive;">
+        <h3 style="color: #b35c5c;">Minha Cartinha para Você 💌</h3>
+        <p style="font-size: 1.1rem; line-height: 1.6;">
+          Minha amada,<br><br>
+          Hoje é um dia especial, e eu quero que você saiba o quanto você significa para mim.
+          Desde o primeiro momento em que te vi, meu coração soube que você era a pessoa com quem eu queria 
+          passar o resto da minha vida.
+          Te amo, meu amor!
+          Queria poder estar ai com você agora
+          Comendo açai.<br><br>
+        </p>
+      </div>
+    `,
+    3: '' // será gerado dinamicamente (jogo)
+  };
+
+  // Variáveis globais para o modal e jogo
+  let modalAtual = 0;
+  let gameInterval;
+  let gameActive = false;
+  let playerPosition = 0;
+  let gameWidth = 400; // largura do container do jogo
+  let playerImgElement;
+  let presentFallSpeed = 3;
+  let presents = [];
+  let playerChosen = 0;
+  let score = 0;
+
+  // URLs de imagens dos players (coloque URLs reais se quiser)
+  const playerImages = {
+    1:'image/p1.png', // exemplo
+    2: 'image/p2.png'  // exemplo
+  };
+
+  // Emojis dos presentes por player
+  const emojisByPlayer = {
+    1: ['💍', '💋', '🍌'],
+    2: ['🍫', '💋', '🍈']
+  };
+
+  function openModal(id) {
+    modalAtual = id;
+    document.getElementById('modal').style.display = 'flex';
+    document.getElementById('senhaInput').value = '';
+    document.getElementById('conteudoEscondido').style.display = 'none';
+    document.getElementById('conteudoEscondido').innerHTML = '';
+    if (gameInterval) {
+      clearInterval(gameInterval);
+      gameInterval = null;
+    }
+    gameActive = false;
+  }
+
+  function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+    if (gameInterval) {
+      clearInterval(gameInterval);
+      gameInterval = null;
+    }
+    gameActive = false;
+  }
+
+  function verificarSenha() {
+    const input = document.getElementById('senhaInput').value.trim();
+    if (input === senhas[modalAtual]) {
+      if (modalAtual === 3) {
+        escolherPlayer();
+      } else {
+        mostrarConteudo(modalAtual);
+      }
+    } else {
+      alert('Senha incorreta. Tente novamente.');
+    }
+  }
+
+  function mostrarConteudo(id) {
+    const conteudo = conteudos[id];
+    const conteudoEl = document.getElementById('conteudoEscondido');
+    conteudoEl.style.display = 'block';
+    conteudoEl.innerHTML = conteudo;
+  }
+
+  // --- Jogo do cadeado 3 ---
+
+  function escolherPlayer() {
+    const conteudoEl = document.getElementById('conteudoEscondido');
+    conteudoEl.style.display = 'block';
+    conteudoEl.innerHTML = `
+      <h3>Escolha o seu personagem</h3>
+      <div style="display: flex; justify-content: center; gap: 30px; margin-top: 20px;">
+        <div style="cursor:pointer;" onclick="startGame(1)">
+          <img src="${playerImages[1]}" alt="Player 1" width="80" /><br/>Player 1
+        </div>
+        <div style="cursor:pointer;" onclick="startGame(2)">
+          <img src="${playerImages[2]}" alt="Player 2" width="80" /><br/>Player 2
+        </div>
+      </div>
+    `;
+  }
+
+  function startGame(playerNum) {
+    playerChosen = playerNum;
+    score = 0;
+
+    const conteudoEl = document.getElementById('conteudoEscondido');
+    conteudoEl.innerHTML = `
+      <h3>Jogo do Cadeado 3</h3>
+      <p id="scoreDisplay">Pontuação: 0</p>
+      <div id="gameContainer" tabindex="0">
+        <div id="player" style="left: 0;">
+          <img src="${playerImages[playerNum]}" alt="Player" />
+        </div>
+      </div>
+      <div id="mobileControls">
+        <button onclick="moveLeft()">◀️</button>
+        <button onclick="moveRight()">▶️</button>
+      </div>
+      <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+        Use as setas do teclado ou os botões abaixo para mover.
+      </p>
+    `;
+
+    playerPosition = 0;
+
+    // Apaga presentes antigos
+    presents = [];
+
+    // Configurações de jogo
+    gameWidth = 400;
+    presentFallSpeed = 3;
+
+    // Adiciona evento teclado para mover o player
+    const gameContainer = document.getElementById('gameContainer');
+    gameContainer.focus();
+    gameContainer.onkeydown = function(e) {
+      if (!gameActive) return;
+      if (e.key === 'ArrowLeft') {
+        moveLeft();
+      } else if (e.key === 'ArrowRight') {
+        moveRight();
+      }
+    };
+
+    gameActive = true;
+
+    // Cria o elemento playerImgElement para referência rápida
+    playerImgElement = document.getElementById('player');
+
+    // Começa o loop do jogo
+    if (gameInterval) clearInterval(gameInterval);
+    gameInterval = setInterval(gameLoop, 30);
+  }
+
+  function moveLeft() {
+    if (!gameActive) return;
+    playerPosition -= 30;
+    if (playerPosition < 0) playerPosition = 0;
+    playerImgElement.style.left = playerPosition + 'px';
+  }
+
+  function moveRight() {
+    if (!gameActive) return;
+    playerPosition += 30;
+    if (playerPosition > gameWidth - 60) playerPosition = gameWidth - 60;
+    playerImgElement.style.left = playerPosition + 'px';
+  }
+
+  function updateScore() {
+    const scoreEl = document.getElementById('scoreDisplay');
+    if (scoreEl) {
+      scoreEl.textContent = `Pontuação: ${score}`;
+    }
+  }
+
+  function createPresent() {
+    const container = document.getElementById('gameContainer');
+    if (!container) return;
+
+    const p = document.createElement('div');
+    p.classList.add('present');
+
+    // Sorteia um emoji baseado no player
+    const emojis = emojisByPlayer[playerChosen];
+    const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+    p.textContent = emoji;
+
+    // Posiciona no topo em uma posição horizontal aleatória
+    p.style.top = '-40px';
+    const x = Math.floor(Math.random() * (gameWidth - 36));
+    p.style.left = x + 'px';
+
+    container.appendChild(p);
+
+    presents.push({
+      element: p,
+      x: x,
+      y: -40,
+      caught: false
+    });
+  }
+
+  function gameLoop() {
+    const container = document.getElementById('gameContainer');
+    if (!container) return;
+
+    // Cria presentes aleatoriamente (probabilidade de 3% por tick)
+    if (Math.random() < 0.03) {
+      createPresent();
+    }
+
+    // Atualiza a posição dos presentes
+    for (let i = presents.length - 1; i >= 0; i--) {
+      const p = presents[i];
+      if (p.caught) {
+        // Remover presente da tela e da lista
+        if (p.element.parentElement) {
+          container.removeChild(p.element);
+        }
+        presents.splice(i, 1);
+        continue;
+      }
+
+      p.y += presentFallSpeed;
+      if (p.y > 320) {
+        // Saiu da tela, remove
+        if (p.element.parentElement) {
+          container.removeChild(p.element);
+        }
+        presents.splice(i, 1);
+        continue;
+      }
+      p.element.style.top = p.y + 'px';
+
+      // Detecta colisão com player (player está na parte inferior)
+      // player img está a 20px do bottom, altura 60
+      // posição vertical do player: container height 300 - 20 (bottom) - 60 (altura) = 220
+      const playerTop = 300 - 20 - 60; // 220
+      if (p.y + 36 >= playerTop && p.y + 36 <= playerTop + 60) {
+        const presentLeft = p.x;
+        if (presentLeft + 36 > playerPosition && presentLeft < playerPosition + 60) {
+          // Presente pego
+          if (p.element.textContent === '🍌' || p.element.textContent === '🍈') {
+            score -= 1; // perde 1 ponto
+          } else {
+            score += 2; // ganha 2 pontos
+          }
+          updateScore();
+
+          container.removeChild(p.element);
+          p.caught = true;
+        }
+      }
+    }
+  }
+</script>
+
+</body>
+</html>
